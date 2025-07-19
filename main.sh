@@ -3,7 +3,6 @@
 PS3="Select a database operation by number: "
 SCRIPT_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
 
-echo ${BASH_SOURCE[0]} script directory: $SCRIPT_DIR
 select option in "Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit"
 do
 case $option in
