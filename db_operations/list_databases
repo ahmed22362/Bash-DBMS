@@ -1,0 +1,7 @@
+#! /usr/bin/bash
+ls -F ~/dbs 
+if [ $? -ne 0 ]; then
+    echo "No databases found. Please create a database first."
+else
+    echo "Databases listed above."
+fi
