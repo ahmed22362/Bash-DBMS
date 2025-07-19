@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
+SCRIPT_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
+echo $script directory: $SCRIPT_DIR
 echo "Connecting to a database..."
 ls -F ~/dbs
 if [ $? -ne 0 ]; then
