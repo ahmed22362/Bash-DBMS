@@ -1,0 +1,4 @@
+#!/bin/bash
+
+DB_PATH=$1
+ls "$1"
