@@ -1,0 +1,48 @@
+#!/bin/bash
+
+shopt -s extglob
+while true 
+do
+	read -p 'Enter a name for the new DB or enter "exit" to quit :' DBname
+	if [[ $DBname =~ ^[eE][xX][iI][tT]$ ]]
+	then
+			echo "Ending session..."
+			break
+	fi
+	if [[ -d ~/dbs/"$DBname" ]]
+	then
+			echo "A DB with this name already exists"
+			continue
+	else
+		if [[ "$DBname" =~ ^[a-zA-Z][a-zA-Z_]*[0-9]*$ ]]
+		then
+				if [[ ! -d ~/dbs ]]
+				then
+						mkdir ~/dbs
+						echo "Created dbs directory"
+				fi
+				 
+					mkdir ~/dbs/"$DBname"
+					echo "DB $DBname created successfully "
+					break
+			 
+
+
+		else
+			echo "---------------------------------------------"
+			echo "Please follow these database naming rules:"
+			echo
+			echo "- Must start with a letter (A–Z or a–z)"
+			echo "- Can include underscores and letters in the middle"
+			echo "- Numbers are allowed only at the end"
+			echo "- Do NOT start with a number or underscore"
+			echo "- Special characters and spaces are NOT allowed"
+			echo
+			echo "Valid examples:"
+			echo "  student_DB"
+			echo "  student_123"
+			echo "  student123"
+			echo "---------------------------------------------"
+		fi
+	fi
+done
