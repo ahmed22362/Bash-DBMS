@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/bash
 
 shopt -s extglob
 while true 
@@ -9,20 +9,20 @@ do
 			echo "Ending session..."
 			break
 	fi
-	if [[ -d ~/dbs/"$DBname" ]]
+	if [[ -d $DB_DIR/"$DBname" ]]
 	then
 			echo "A DB with this name already exists"
 			continue
 	else
 		if [[ "$DBname" =~ ^[a-zA-Z][a-zA-Z_]*[0-9]*$ ]]
 		then
-				if [[ ! -d ~/dbs ]]
+				if [[ ! -d $DB_DIR ]]
 				then
-						mkdir ~/dbs
+						mkdir $DB_DIR
 						echo "Created dbs directory"
 				fi
 				 
-					mkdir ~/dbs/"$DBname"
+					mkdir $DB_DIR/"$DBname"
 					echo "DB $DBname created successfully "
 					break
 			 

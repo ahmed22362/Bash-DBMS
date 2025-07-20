@@ -1,17 +1,18 @@
 #!/usr/bin/bash
 
-SCRIPT_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
-echo $script directory: $SCRIPT_DIR
-echo "Connecting to a database..."
-ls -F ~/dbs
+FILE_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
+
+echo "Connecting to a database one of them..."
+ls -F $DB_DIR
+echo "---------------------------------------------"
 if [ $? -ne 0 ]; then
     echo "No databases found Please create a database first."
     exit 1
 fi
 read -p "Enter the name of the database you want to connect to: " db_name
-if [ -d ~/dbs/$db_name ]; then
+if [ -d $DB_DIR/$db_name ]; then
     echo "Connected to database: $db_name"
-    . "$SCRIPT_DIR/../table_operations/menu.sh" $db_name 
+    . "$FILE_DIR/../table_operations/menu.sh" $db_name 
 else
     echo "Database $db_name does not exist. Please create it first."
     exit 1

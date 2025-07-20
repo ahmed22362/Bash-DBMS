@@ -1,7 +1,9 @@
 #! /usr/bin/bash
-ls -F ~/dbs 
+
+echo "Listing all databases..."
+ls -F $DB_DIR 
+echo "---------------------------------------------"
 if [ $? -ne 0 ]; then
     echo "No databases found. Please create a database first."
-else
-    echo "Databases listed above."
+
 fi

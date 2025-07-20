@@ -1,22 +1,27 @@
 #! /usr/bin/bash
 
 PS3="Select a database operation by number: "
-SCRIPT_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
-
+MAIN_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
+DB_DIR="$(echo ~/dbs)"
+. "$MAIN_DIR/helper"
 select option in "Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit"
 do
 case $option in
     "Create Database")
-        . "$SCRIPT_DIR/db_operations/create_database"
+        . "$MAIN_DIR/db_operations/create_database"
+        listMainMenu
         ;;
     "List Databases")
-        . "$SCRIPT_DIR/db_operations/list_databases"
+        . "$MAIN_DIR/db_operations/list_databases"
+        listMainMenu
         ;;
     "Connect to Database")
-        . "$SCRIPT_DIR/db_operations/connect_database"
+        . "$MAIN_DIR/db_operations/connect_database"
+        listMainMenu
         ;;
     "Drop Database") 
-        . "$SCRIPT_DIR/db_operations/drop_database" $SCRIPT_DIR
+        . "$MAIN_DIR/db_operations/drop_database" $MAIN_DIR
+        listMainMenu
         ;;  
     Exit)
         echo "Exiting..."
