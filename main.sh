@@ -29,6 +29,7 @@ case $option in
         ;;
     *)
         echo "Enter a valid option"
+        listMainMenu
         ;;
 esac
 done
