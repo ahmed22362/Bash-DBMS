@@ -1,13 +1,15 @@
 #! /usr/bin/bash
 
 ls -F $DB_DIR
-if [ $? -ne 0 ]; then
+if [ $? -ne 0 ]
+then
     echo "No databases found Please create a database first."
     
 fi
 read -p "Enter the name of the database you want to drop: " db_name
 
-if [ -d $DB_DIR/$db_name ]; then
+if [ -d $DB_DIR/$db_name ]
+then
     rm -rf $DB_DIR/$db_name
     echo "Database $db_name has been dropped successfully."
 else

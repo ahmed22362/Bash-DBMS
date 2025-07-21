@@ -1,6 +1,6 @@
 #! /usr/bin/bash
 
-function listMainMenu(){
+ listMainMenu(){
     echo "Main Menu:"
     echo "Select a database operation by number:"
     echo "1. Create Database"
@@ -9,4 +9,59 @@ function listMainMenu(){
     echo "4. Drop Database"
     echo "5. Exit"
     echo -n "Enter your choice: "
+}
+ validateTableName() {
+    table_name=$1
+    if [[ -z $table_name ]] 
+    then
+        echo "Table name cannot be empty Please enter a valid name."
+        return 1
+    fi
+
+    if [[ ! $table_name =~ ^[a-zA-Z][a-zA-Z0-9_]*$ ]]
+    then
+
+        return 1
+    fi
+    return 0
+}
+checkTableExists() {
+    table_name=$1
+    echo
+    if [[ -f $DB_DIR/$DB_NAME/$table_name.meta ]]
+    then
+        return 1
+    fi
+    return 0
+}
+validateColumnName() {
+    column_name=$1
+    if [[ -z $column_name ]] 
+    then
+        echo "Column name cannot be empty Please enter a valid name."
+        return 1
+    fi
+
+    if [[ ! $column_name =~ ^[a-zA-Z][a-zA-Z0-9_]*$ ]]
+    then
+        echo "Column name must start with a letter and can only contain letters, numbers, and underscores."
+        return 1
+    fi
+    return 0
+
+}
+validateColumnType(){
+    column_type=$1
+    if [[ -z $column_type ]]
+    then
+        echo "Column type cannot be empty please enter a valid type."
+        return 1
+    fi
+    if [[ ! $column_type =~ ^(int|string)$  ]]
+    then    
+        echo "Column type must be one of the following: int, string"
+        return 1
+    fi
+    echo "Column type is valid."
+    return 0
 }

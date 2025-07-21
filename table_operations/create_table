@@ -1,0 +1,106 @@
+#! /usr/bin/bash
+
+FILE_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
+
+. $FILE_DIR/../helper
+echo $DB_NAME
+while true
+do
+    read -p "Enter table name to create: or type 'exit' to quit: " table_name 
+    if [[ $table_name =~ ^[eE][xX][iI][tT]$ ]]
+    then
+        echo "Ending session..."
+        break
+    fi
+    validateTableName "$table_name"
+    if [ $? -ne 0 ]
+    then
+        echo "Invalid table name.
+        It must start with a letter and can only contain letters, numbers, and underscores."
+        continue
+    fi
+    checkTableExists "$table_name"
+    if [ $? -ne 0 ]
+    then
+        echo "Table $table_name already exists Please choose a different name."
+        continue
+    fi
+    
+    while true
+    do
+    read -p "Enter the number of columns for the table: " num_columns
+    if [[ ! $num_columns =~ ^[0-9]+$ ]] || [ $num_columns -le 0 ]
+    then
+        echo "Invalid number of columns. Please enter a positive integer."
+        continue
+    else 
+        break
+    fi
+    done
+
+    declare -a columns=()
+
+    for ((i=1; i<=num_columns; i++))
+    do
+        read -p "Enter column $i name( no space between use underscores ): " column_name
+        while true
+        do
+            validateColumnName "$column_name"
+            if [ $? -ne 0 ]
+            then    
+                echo "Invalid column name. 
+                It must start with a letter and can only contain letters, numbers, and underscores."
+            else
+                break
+            fi
+            read -p "Enter column $i name( no space between use underscores ): " column_name
+        done
+        read -p "Enter column $i type (e.g., int, string): " column_type 
+        while true
+        do
+            validateColumnType "$column_type"
+            if [ $? -ne 0 ]
+            then
+                echo "Invalid column type. 
+                It must be one of the following: int, string"
+            else
+                break
+            fi
+            read -p "Enter column $i type (e.g., int, string): " column_type 
+        done
+        
+        columns+=("${column_name}:${column_type}")
+    done
+
+    echo "Columns entered:"
+    for idx in "${!columns[@]}"
+    do
+        echo "$((idx+1)) ${columns[$idx]}"
+    done
+
+    while true
+    do
+        read -p "Enter the number of the column you want to set as primary key (or 0 for no primary key): " pk_index
+        if [[ $pk_index =~ ^[0-9]+$ ]] && (( pk_index >= 0 && pk_index <= ${#columns[@]} ))
+        then
+            break
+        else
+            echo "Invalid choice. Please enter a valid number."
+        fi
+    done
+
+    for idx in "${!columns[@]}"
+    do
+        column="${columns[$idx]}"
+        if (( pk_index > 0 && idx + 1 == pk_index ))
+        then
+            echo "${column}:pk" >> $DB_DIR/$DB_NAME/".$table_name.meta"
+            echo "Primary key set to: ${column%%:*}"
+        else
+            echo $column >> $DB_DIR/$DB_NAME/".$table_name.meta"
+        fi
+    done
+    touch "$DB_DIR/$DB_NAME/$table_name.data"
+    echo "Table $table_name has been created successfully."
+    break
+done 
