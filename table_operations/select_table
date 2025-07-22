@@ -1,0 +1,53 @@
+#!/bin/bash
+shopt -s extglob
+
+DB_PATH=~/dbs/$1
+while true
+do
+	ls $DB_PATH
+	read -p $'\n Select a table from the above : \n' tablename
+	if [[ -f $DB_PATH/$tablename ]]
+	then
+		echo -e "Here are the available fileds :\n`cat $DB_PATH/.$tablename.meta` "
+		read -p $'Do you want to navigate by \n[1]primary key \n[2]A specific field \n[3]Display entire table \n' option
+		case $option in
+			1)
+				pk=$(awk -F: '$NF == "pk" { print $1; exit }' $DB_PATH/.$tablename.meta)
+				pkindex=$(awk -F: '$NF == "pk" { print NR; exit }' $DB_PATH/.$tablename.meta)
+				echo primary key is "$pk" at column number "$pkindex"
+				read -p "please enter the desired primarykey to display entire row: " rowpk
+			        awk -F: -v idx="$pkindex" -v val="$rowpk" '$(idx) == val' $DB_PATH/$tablename	
+	
+				break
+				;;
+			2)
+				echo "you chose 2"
+				break
+				;;
+			3)
+				echo "you chose 3"
+				break
+				;;
+			*)
+				echo "Invalid option, please try again..."
+				continue
+				;;
+		esac
+
+	else
+	read -p 'No table matching, would you like to try again or exit? : \n[1] Try again \n[any button] Exit ' option
+	#case $option in
+	#	1)
+	#	continue
+	#	;;
+	#	*)
+	#	echo "Going back to the previous menu..."
+	#	break
+	#	;;
+      #	esac
+
+			
+	fi
+	
+
+done
