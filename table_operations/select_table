@@ -4,11 +4,14 @@ shopt -s extglob
 DB_PATH=~/dbs/$1
 while true
 do
+
+	
 	ls $DB_PATH
 	read -p $'\n Select a table from the above : \n' tablename
 	if [[ -f $DB_PATH/$tablename ]]
 	then
-		echo -e "Here are the available fileds :\n`cat $DB_PATH/.$tablename.meta` "
+		echo -e "Here are the available fileds/columns :\n`cat $DB_PATH/.$tablename.meta` "
+		declare -i NumOfFields=$(wc -l < $DB_PATH/$tablename)
 		read -p $'Do you want to navigate by \n[1]primary key \n[2]A specific field \n[3]Display entire table \n' option
 		case $option in
 			1)
@@ -21,7 +24,21 @@ do
 				break
 				;;
 			2)
-				echo "you chose 2"
+				declare -i field=0
+				read -p $'Which column or filed you want to investigate? :chose the field number [1-9] ' field
+				if [[ ! $field == [1-9] ]]
+				then
+					echo "you have exceeded the allowed number of columns...please try again"
+
+				
+				
+				elif (( $field > $NumOfFields ))
+				then 
+					echo "you have exceeded the current number of columns for this table...please try again"
+				else
+					cut -d: -f$field $DB_PATH/$tablename
+				fi
+				
 				break
 				;;
 			3)
