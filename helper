@@ -28,7 +28,7 @@
 checkTableExists() {
     table_name=$1
     echo
-    if [[ -f $DB_DIR/$DB_NAME/$table_name.meta ]]
+    if [[ -f "$DB_DIR/$DB_NAME/.$table_name.meta" ]]
     then
         return 1
     fi
@@ -63,5 +63,19 @@ validateColumnType(){
         return 1
     fi
     echo "Column type is valid."
+    return 0
+}
+validateColumnExist(){
+    column_name=$1
+    column_arr=$2
+    for column in "${column_arr[@]}"
+    do
+        name="${column%%:*}"
+        if [[ $name == $column_name ]]
+        then
+            echo "Column '$column_name' already exists." 
+            return 1
+        fi
+    done
     return 0
 }

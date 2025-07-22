@@ -3,7 +3,6 @@
 FILE_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
 
 . $FILE_DIR/../helper
-echo $DB_NAME
 while true
 do
     read -p "Enter table name to create: or type 'exit' to quit: " table_name 
@@ -53,6 +52,16 @@ do
             else
                 break
             fi
+        done
+        while true
+        do
+            validateColumnExist "$column_name" "${columns[@]}"
+            if [ $? -ne 0 ]
+            then
+                echo "Column '$column_name' already exists. Please enter a different name."
+            else
+                break
+            fi
             read -p "Enter column $i name( no space between use underscores ): " column_name
         done
         read -p "Enter column $i type (e.g., int, string): " column_type 
@@ -97,7 +106,7 @@ do
             echo "${column}:pk" >> $DB_DIR/$DB_NAME/".$table_name.meta"
             echo "Primary key set to: ${column%%:*}"
         else
-            echo $column >> $DB_DIR/$DB_NAME/".$table_name.meta"
+            echo "${column}:" >> $DB_DIR/$DB_NAME/".$table_name.meta"
         fi
     done
     touch "$DB_DIR/$DB_NAME/$table_name.data"
