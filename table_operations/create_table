@@ -89,8 +89,8 @@ do
 
     while true
     do
-        read -p "Enter the number of the column you want to set as primary key (or 0 for no primary key): " pk_index
-        if [[ $pk_index =~ ^[0-9]+$ ]] && (( pk_index >= 0 && pk_index <= ${#columns[@]} ))
+        read -p "Enter the number of the column you want to set as primary key: " pk_index
+        if [[ $pk_index =~ ^[1-9]+$ ]] && (( pk_index >= 1 && pk_index <= ${#columns[@]} ))
         then
             break
         else
