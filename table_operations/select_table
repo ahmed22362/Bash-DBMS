@@ -18,7 +18,7 @@ do
 				pk=$(awk -F: '$NF == "pk" { print $1; exit }' $DB_PATH/.$tablename.meta)
 				pkindex=$(awk -F: '$NF == "pk" { print NR; exit }' $DB_PATH/.$tablename.meta)
 				echo primary key is "$pk" at column number "$pkindex"
-				read -p "please enter the desired primarykey to display entire row: " rowpk
+				read -p "please enter the desired primarykey to display entire row: " rowpk	
 			        awk -F: -v idx="$pkindex" -v val="$rowpk" '$(idx) == val' $DB_PATH/$tablename	
 	
 				break
@@ -42,7 +42,37 @@ do
 				break
 				;;
 			3)
-				echo "you chose 3"
+				meta_file="$DB_PATH/.${tablename}.meta"
+				data_file="$DB_PATH/${tablename}"
+
+				# Extract headers from meta file
+				headers=$(awk -F: '{printf "%s\t", $1} END {print ""}' "$meta_file")
+
+				# Print formatted table
+				{
+				    echo -e "$headers"
+				    awk -F: '{
+					for (i = 1; i <= NF; i++) {
+					    printf "%s%s", $i, (i < NF ? "\t" : "\n")
+					}
+				    }' "$data_file"
+				} | column -t | awk '
+				BEGIN {
+				    print "+------------------------------------------------------+"
+				}
+				NR==1 {
+				    print "| " $0 " |"
+				    print "+------------------------------------------------------+"
+				    next
+				}
+				{
+				    print "| " $0 " |"
+				}
+				END {
+				    print "+------------------------------------------------------+"
+				}
+				'
+
 				break
 				;;
 			*)
