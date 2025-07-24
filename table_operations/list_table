@@ -1,0 +1,4 @@
+#!/bin/bash
+
+DB_PATH=~/dbs/$1
+ls ~/dbs/"$1"
