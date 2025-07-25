@@ -17,7 +17,10 @@ case $option in
         echo "Creating a new table in database $DB_NAME..."
         . "$FILE_DIR/create_table" 
         ;;
-
+    "Insert into Table" )
+        echo "Inserting into a table in database $DB_NAME..."
+        . "$FILE_DIR/insert_into_table"
+        ;;
     Exit)
         echo "Exiting..."
         break
