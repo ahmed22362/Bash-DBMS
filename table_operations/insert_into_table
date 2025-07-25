@@ -102,7 +102,7 @@ do
                     # echo $(cut -d: -f"$col_index" $data_file)
                     # echo $(cut -d: -f"$col_index" $data_file | grep -Fx $value)
                     #F for string comparison, x for exact match q for quiet mode return only 0 or 1
-                    if cut -d: -f"$col_index" $data_file | grep -qFx $value 
+                    if cut -d: -f"$col_index" $data_file | grep -qFx "$value" 
                     then
                         echo "Value '$value' already exists in column '$col_name'. Please enter a unique value."
                         continue
