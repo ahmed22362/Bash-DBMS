@@ -1,0 +1,128 @@
+#! /usr/bin/bash
+
+while true
+do
+
+    echo "---------------------------------------------"
+    echo "Here is the list of tables in database $DB_NAME, choose one to insert into or type 'exit' to quit:"
+    if [[ $table_name =~ ^[eE][xX][iI][tT]$ ]]
+    then
+        echo "Ending session..."
+        break
+    fi
+
+    for file in "$DB_DIR/$DB_NAME"/*.data
+    do
+    [[ -e "$file" ]] || continue
+    echo "$(basename "${file%.data}")"
+    done
+
+    read -p "Please enter the name of the table you want to insert into: " TABLE_NAME 
+    checkTableExists "$TABLE_NAME"
+    if [[ $? -ne 1 ]]
+    then
+        echo "Table $TABLE_NAME does not exist in database $DB_NAME."
+        continue
+    fi
+
+    read -p "Do you want to insert values for one or more rows? (one/more): " insert_choice
+    if [[ ! $insert_choice =~ ^([oO][nN][eE]|[mM][oO][rR][eE])$ ]]
+    then
+        echo "Invalid choice Please enter 'one' or 'more'."
+        continue
+    fi
+
+    if [[ $insert_choice =~ ^([oO][nN][eE])$ ]]
+    then
+        num_values=1
+    else
+        while true
+        do
+            read -p "How many values do you want to insert? " num_values
+            if [[ $num_values =~ ^[1-9][0-9]*$ ]]
+            then
+                echo "You have chosen to insert $num_values values."
+                break
+            else
+                echo "Please enter a valid positive integer."
+            fi
+        done
+    fi
+
+
+    meta_file="$DB_DIR/$DB_NAME/.${TABLE_NAME}.meta"
+    if [[ ! -f "$meta_file" ]]
+    then
+        echo "Meta file not found for table $TABLE_NAME."
+        continue
+    fi
+
+    columns=($(awk '{print $1}' $meta_file))
+    echo "Columns in table $TABLE_NAME:"
+    for col in "${columns[@]}"
+    do
+        echo " - $col"
+    done
+
+    data_file="$DB_DIR/$DB_NAME/${TABLE_NAME}.data"
+
+    for ((i=0; i<num_values; i++))
+    do
+        values=()
+        echo "value for column $((i+1)):"
+        for ((index=0; index<${#columns[@]}; index++))
+        do
+            col_name=$(echo "${columns[$index]}" | cut -d':' -f1)
+            col_type=$(echo "${columns[$index]}" | cut -d':' -f2)
+            col_unique=$(echo "${columns[$index]%:}" | cut -d':' -f3)
+            echo "Column: $col_name, Type: $col_type, Unique: $col_unique"
+            while true
+            do
+                read -p "Enter value for column '$col_name' ($col_type): " value
+
+                if [[ -z "$value" ]]
+                then
+                    echo "Value cannot be empty. Please enter a valid value."
+                    continue
+                fi
+
+                if [[ "$col_type" == "int" ]]
+                then
+                    if ! [[ "$value" =~ ^[1-9][0-9]*$ ]]
+                    then
+                        echo "Invalid input. Please enter a positive integer."
+                        continue
+                    fi
+                fi
+                
+                if [[ "$col_unique" == "pk" ]]
+                then
+                    col_index=$((index+1))
+                    echo "$col_index is the index of the primary key for ${columns[$index]}"
+                    # echo $(cut -d: -f"$col_index" $data_file)
+                    # echo $(cut -d: -f"$col_index" $data_file | grep -Fx $value)
+                    #F for string comparison, x for exact match q for quiet mode return only 0 or 1
+                    if cut -d: -f"$col_index" $data_file | grep -qFx "$value" 
+                    then
+                        echo "Value '$value' already exists in column '$col_name'. Please enter a unique value."
+                        continue
+                    fi
+                fi
+                #check for the ":" in the input and replace it with {colon} 
+                echo "Checking for colon in the input value"
+                if [[ "$value" == *":"* ]]
+                then
+                    echo "Colon found in the input value, replacing it with {colon}"
+                    value="$(sed 's/:/{colon}/g' <<< "$value")"
+                fi
+                values+=("$value")
+                break
+            done
+        done
+        row=$(IFS=: ; echo "${values[*]}")
+        echo "$row" >> "$data_file"
+        echo "Inserted row into $TABLE_NAME successfully."
+    done
+    echo ${values[@]}
+
+done
