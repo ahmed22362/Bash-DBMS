@@ -109,6 +109,12 @@ do
                     fi
                 fi
                 #check for the ":" in the input and replace it with {colon} 
+                echo "Checking for colon in the input value"
+                if [[ "$value" == *":"* ]]
+                then
+                    echo "Colon found in the input value, replacing it with {colon}"
+                    value="$(sed 's/:/{colon}/g' <<< "$value")"
+                fi
                 values+=("$value")
                 break
             done
