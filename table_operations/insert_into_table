@@ -23,14 +23,18 @@ do
     then
         echo "Table $TABLE_NAME does not exist in database $DB_NAME."
         continue
-    fi
-
-    read -p "Do you want to insert values for one or more rows? (one/more): " insert_choice
-    if [[ ! $insert_choice =~ ^([oO][nN][eE]|[mM][oO][rR][eE])$ ]]
-    then
-        echo "Invalid choice Please enter 'one' or 'more'."
-        continue
-    fi
+    fi  
+    while true
+    do
+        read -p "Do you want to insert values for one or more rows? (one/more): " insert_choice
+        if [[ ! $insert_choice =~ ^([oO][nN][eE]|[mM][oO][rR][eE])$ ]]
+        then
+            echo "Invalid choice Please enter 'one' or 'more'."
+            continue
+            else
+            break
+        fi
+    done
 
     if [[ $insert_choice =~ ^([oO][nN][eE])$ ]]
     then
@@ -48,8 +52,6 @@ do
             fi
         done
     fi
-
-
     meta_file="$DB_DIR/$DB_NAME/.${TABLE_NAME}.meta"
     if [[ ! -f "$meta_file" ]]
     then
