@@ -1,6 +1,8 @@
 #!/bin/bash
 shopt -s extglob
+FILE_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
 
+. $FILE_DIR/../helper
 DB_PATH=~/dbs/$1
 while true
 do
@@ -42,37 +44,7 @@ do
 				break
 				;;
 			3)
-				meta_file="$DB_PATH/.${tablename}.meta"
-				data_file="$DB_PATH/${tablename}"
-
-				# Extract headers from meta file
-				headers=$(awk -F: '{printf "%s\t", $1} END {print ""}' "$meta_file")
-
-				# Print formatted table
-				{
-				    echo -e "$headers"
-				    awk -F: '{
-					for (i = 1; i <= NF; i++) {
-					    printf "%s%s", $i, (i < NF ? "\t" : "\n")
-					}
-				    }' "$data_file"
-				} | column -t | awk '
-				BEGIN {
-				    print "+------------------------------------------------------+"
-				}
-				NR==1 {
-				    print "| " $0 " |"
-				    print "+------------------------------------------------------+"
-				    next
-				}
-				{
-				    print "| " $0 " |"
-				}
-				END {
-				    print "+------------------------------------------------------+"
-				}
-				'
-
+				DISPLAY_TABLE
 				break
 				;;
 			*)
