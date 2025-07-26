@@ -17,12 +17,15 @@ do
         echo "Invalid table name.
         It must start with a letter and can only contain letters, numbers, and underscores."
         continue
+        read -p "Enter table name to create: or type 'exit' to quit: " table_name 
     fi
     checkTableExists "$table_name"
     if [ $? -ne 0 ]
     then
         echo "Table $table_name already exists Please choose a different name."
         continue
+        read -p "Enter table name to create: or type 'exit' to quit: " table_name 
+
     fi
     
     while true
@@ -41,14 +44,15 @@ do
 
     for ((i=1; i<=num_columns; i++))
     do
-        read -p "Enter column $i name( no space between use underscores ): " column_name
         while true
         do
+        read -p "Enter column $i name( no space between use underscores ): " column_name
             validateColumnName "$column_name"
             if [ $? -ne 0 ]
             then    
                 echo "Invalid column name. 
                 It must start with a letter and can only contain letters, numbers, and underscores."
+                continue
             else
                 break
             fi
@@ -89,8 +93,8 @@ do
 
     while true
     do
-        read -p "Enter the number of the column you want to set as primary key (or 0 for no primary key): " pk_index
-        if [[ $pk_index =~ ^[0-9]+$ ]] && (( pk_index >= 0 && pk_index <= ${#columns[@]} ))
+        read -p "Enter the number of the column you want to set as primary key: " pk_index
+        if [[ $pk_index =~ ^[1-9]+$ ]] && (( pk_index >= 1 && pk_index <= ${#columns[@]} ))
         then
             break
         else
