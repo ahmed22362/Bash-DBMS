@@ -1,0 +1,105 @@
+#!/bin/bash
+shopt -s extglob
+FILE_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
+
+. $FILE_DIR/../helper
+DB_PATH=~/dbs/$1
+
+while true
+do
+	echo -e 'Here are the available tables you can chose from:\n'
+	ls $DB_PATH
+	read -p $'Chose a table from the above: ' tablename
+	if ! [[ -s $DB_PATH/"$tablename" ]] ; then
+		echo "this table is empty and has no entries to delete, go back to main menu and creat or insert in table"
+		break
+	fi
+	if [[ -z $tablename ]] ; then echo "No table selected...please try again"
+		continue 
+	fi
+	if [[ ! -f $DB_PATH/$tablename ]] ; then
+		read -p $'No table matching your choice: \n[1]Try again\n[any other button]Exit\n' option
+		case $option in
+			1)
+				continue
+				;;
+			*)
+				echo "Going back to main menu..."
+				break
+				;;
+		esac
+	else
+		pk=$(awk -F: '$NF == "pk" {print $1}' $DB_PATH/.$tablename.meta)
+		pktype=$(awk -F: '$NF == "pk" {print $2}' $DB_PATH/.$tablename.meta)
+		pkindex=$(awk -F: '$NF == "pk" {print NR}' $DB_PATH/.$tablename.meta)
+		echo -e "Here is the content of the table you chose: \n"
+		DISPLAY_TABLE
+		declare -i NumOfDelete=0
+		declare -i total_lines=$(wc -l < "$DB_PATH/$tablename")
+		while true
+		do
+			read -p	$'\nHow many entries do you want to delete? :\n
+			Hint:the table you chose has only '"$total_lines"$' entries\n' NumOfDelete
+			
+			if ! [[ $NumOfDelete =~ ^[1-9][0-9]*$ ]] ; then
+				echo "Insufficient input, you should enter an integer posistive -non zero- number...please try again"
+				continue
+			elif (( $NumOfDelete > $total_lines )) ; then
+				echo "Insufficient input, you entered a number greater than the number of table entries...please try again"
+			
+				continue
+			else
+				echo "You chose to delete $NumOfDelete entries "
+				break
+			fi
+		done
+		
+		echo -e "primary key for this table is $pk with type $pktype\n"
+		while true
+		do
+		    read -p "Please enter the primary key/keys of the row/rows you want to delete from the table: " -a pkarray
+		    declare -i i=0
+		    all_found=true
+
+		    for ((i=0; i < NumOfDelete; i++)) 
+			do
+				pk="${pkarray[$i]}"
+
+				if ! cut -d: -f"$pkindex" "$DB_PATH/$tablename" | grep -qx "$pk"; then
+				    echo "No match for primary key '$pk' in the table. Please try again."
+				    all_found=false
+				    break
+				fi
+		    done
+
+
+		if [[ $all_found == "true" ]] ; then
+		
+			for (( y=0; y<NumOfDelete; y++ )); do
+			    pk_value=${pkarray[$y]}
+			    
+			    # Get the line number where the primary key matches in the pk column
+			    lineno=$(awk -F: -v pk="$pk_value" -v col="$pkindex" '$col == pk { print NR; exit }' "$DB_PATH/$tablename")
+			    
+			    if [[ -n "$lineno" ]]; then
+				sed -i "${lineno}d" "$DB_PATH/$tablename"
+				echo "Deleted row with primary key $pk_value (line $lineno)"
+				echo "Here's the new table content: "
+				DISPLAY_TABLE
+			    else
+				echo "Primary key $pk_value not found in table"
+			    fi
+			done
+
+
+
+		fi
+		if [[ $all_found == "true" ]] ; then
+			#exiting the small while true
+			break
+		fi
+		done
+		
+	fi
+	break
+done
