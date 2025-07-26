@@ -1,0 +1,155 @@
+#! /usr/bin/bash
+
+
+
+#check the table and the database then list all columns in the table then ask the user to choose a column to update
+#the ask the user to enter the new value for that column 
+#we can make the user to chose a row to update by asking for the unique value of that column
+# do you want to update a row or the whole column?
+# if the user wants to update a row, we can ask for the for the id ?
+# or to ask him for the equality condition to update the row?
+#first get the line number of the table to update from i think with awk?
+#then use sed to replace the data with the new data sed -i '3s/old_text/new_text/' my_file.txt
+#but get the metadata file first to know which column and then which filed to update
+#and check if this column is unique or not
+#update users set name="Ahmed" where id=3
+#echo "---------------------------------------------"
+#echo "Here is the list of tables in database $DB_NAME, choose one to update from or type 'exit' to quit:"
+while true
+do
+    echo "---------------------------------------------"
+    echo "Here is the list of tables in database $DB_NAME, choose one to insert into or type 'exit' to quit:"
+    for file in "$DB_DIR/$DB_NAME"/*.data
+    do
+    [[ -e "$file" ]] || continue
+    echo "$(basename "${file%.data}")"
+    done
+
+    read -p "Please enter the name of the table you want to insert into: " TABLE_NAME 
+    if [[ $TABLE_NAME =~ ^[eE][xX][iI][tT]$ ]]
+    then
+        echo "Ending session..."
+        break
+    fi
+    checkTableExists "$TABLE_NAME"
+    if [[ $? -ne 1 ]]
+    then
+        echo "Table $TABLE_NAME does not exist in database $DB_NAME."
+        continue
+    fi
+
+    meta_file="$DB_DIR/$DB_NAME/.${TABLE_NAME}.meta"
+    if [[ ! -f "$meta_file" ]]
+    then
+        echo "Meta file not found for table $TABLE_NAME."
+        continue
+    fi
+    columns=($(awk '{print $1}' $meta_file))
+    for column in "${columns[@]}"
+    do
+        echo "- $column"  
+    done
+
+    while true
+    do
+        read -p "Enter the column name you want to update: " COLUMN_NAME
+        cut -d: -f1 $meta_file | grep -qw $COLUMN_NAME
+        if [ $? -eq 1 ]
+        then
+            echo "The column $COLUMN_NAME does not exist in the table $TABLE_NAME. Please choose a valid column."
+            continue
+        else
+            break
+        fi
+    done  
+
+
+    data_file="$DB_DIR/$DB_NAME/$TABLE_NAME.data"
+
+    #check value
+    while true
+    do
+        col_type=$(grep -w "^$COLUMN_NAME" "$meta_file"| cut -d: -f2)
+        col_pk=$(grep -w "^$COLUMN_NAME" "$meta_file"| cut -d: -f3)
+        read -p "Enter the new value for column $COLUMN_NAME ($col_type): " NEW_VALUE
+
+        if [[ -z "$NEW_VALUE" ]]
+        then
+            echo "Value cannot be empty. Please enter a valid value."
+            continue
+        fi 
+        if [[ "$col_type" == "int" ]]
+        then
+            if ! [[ "$NEW_VALUE" =~ ^[0-9]+$ ]]
+            then
+                echo "Invalid input. Column $COLUMN_NAME requires an integer."
+                continue
+            fi
+        fi
+        if [[ "$col_type" == "string" ]]
+        then
+            if [[ "$NEW_VALUE" == *":"* ]]
+            then
+                echo "Colon found in the input value, replacing it with {colon}"
+                NEW_VALUE="$(sed 's/:/{colon}/g' <<< "$NEW_VALUE")"
+            fi
+        fi
+        if [[ $col_pk == "pk" ]]
+        then
+            col_index=$(awk -F':' -v col="$COLUMN_NAME" '
+            {
+                if ($1 == col) {
+                    print NR;
+                }
+            }' "$meta_file")
+
+            # Check if NEW_VALUE already exists in data
+            if cut -d: -f"$col_index" $data_file | grep -qFx "$NEW_VALUE" 
+            then
+                echo "Value '$NEW_VALUE' already exists in column '$COLUMN_NAME'. Please enter a unique value."
+                continue
+            fi
+        fi
+    done
+
+    # now we ask for the condition to update the row
+    # name=abdo
+    while true
+    then
+        read -p "Enter the condition to update the row (e.g., id=1): " CONDITION
+        if [[ ! "$CONDITION" =~ ^[a-zA-Z_]+=[^=]+$ ]]
+        then
+            echo "Invalid condition format Use column=value."
+            continue
+        fi      
+        condition_column=$(echo "$CONDITION" | cut -d= -f1)
+        condition_value=$(echo "$CONDITION" | cut -d= -f2)
+        # check if condition column exists
+        cut -d: -f1 "$meta_file" | grep -qw "$condition_column"
+        if [[ $? -ne 0 ]]
+        then
+            echo "Condition column '$condition_column' does not exist."
+            continue
+        elif
+            break
+        fi
+    done
+    condition_index=$(awk -F":" -v col=$condition_column '$1==col {print NR}' "$meta_file")
+    update_index=$(awk -F':' -v col="$COLUMN_NAME" '$1==col {print NR}' "$meta_file")
+
+    echo "Condition column index: $condition_index"
+    echo "Update column index: $update_index"
+    
+    temp=$(mktemp)
+
+    awk -F: -v OFS=: -v cond_col="$condition_index" -v cond_val="$condition_value" \
+        -v upd_col="$update_index" -v new_val="$NEW_VALUE" '
+    {
+        if ($cond_col == cond_val) {
+            $upd_col = new_val
+        }
+        print
+    }' "$data_file" > temp && mv temp "$data_file"
+    echo "Updated $TABLE_NAME successfully!"
+    break
+done
