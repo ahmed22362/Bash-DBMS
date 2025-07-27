@@ -21,6 +21,22 @@ case $option in
         echo "Inserting into a table in database $DB_NAME..."
         . "$FILE_DIR/insert_into_table"
         ;;
+    "List Tables")
+	    echo "Listing available tables in database $DB_NAME"
+	    . "$FILE_DIR/list_table"
+	    ;;
+    "Drop Table")
+	    echo "Dropping tables in database $DB_NAME"
+	    . "$FILE_DIR/drop_table"
+	    ;;
+    "Select From Table")
+	    echo "Fetching data from tables within the database $DB_NAME"
+	    . "$FILE_DIR/select_table"
+	    ;;
+    "Delete From Table")
+	    echo "Deleting content from tables in the database $DB_NAME"
+	    . "$FILE_DIR/delete_from_table"
+	    ;;
     Exit)
         echo "Exiting..."
         break
