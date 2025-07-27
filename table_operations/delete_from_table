@@ -7,17 +7,22 @@ DB_PATH=~/dbs/$1
 
 while true
 do
-	echo -e 'Here are the available tables you can chose from:\n'
-	ls $DB_PATH
+	echo "---------------------------------------------"
+	echo "Here is the list of tables in database $DB_NAME, choose one to delete from: "
+	for file in $DB_PATH/*.data
+	do
+	[[ -e "$file" ]] || continue
+	echo "$(basename "${file%.data}")"
+	done	
 	read -p $'Chose a table from the above: ' tablename
-	if ! [[ -s $DB_PATH/"$tablename" ]] ; then
+	if ! [[ -s $DB_PATH/"$tablename.data" ]] ; then
 		echo "this table is empty and has no entries to delete, go back to main menu and creat or insert in table"
 		break
 	fi
-	if [[ -z $tablename ]] ; then echo "No table selected...please try again"
+	if [[ -z "$tablename" ]] ; then echo "No table selected...please try again"
 		continue 
 	fi
-	if [[ ! -f $DB_PATH/$tablename ]] ; then
+	if [[ ! -f $DB_PATH/"$tablename.data" ]] ; then
 		read -p $'No table matching your choice: \n[1]Try again\n[any other button]Exit\n' option
 		case $option in
 			1)
@@ -35,7 +40,7 @@ do
 		echo -e "Here is the content of the table you chose: \n"
 		DISPLAY_TABLE
 		declare -i NumOfDelete=0
-		declare -i total_lines=$(wc -l < "$DB_PATH/$tablename")
+		declare -i total_lines=$(wc -l < "$DB_PATH/$tablename.data")
 		while true
 		do
 			read -p	$'\nHow many entries do you want to delete? :\n
@@ -61,11 +66,11 @@ do
 		    declare -i i=0
 		    all_found=true
 
-		    for ((i=0; i < NumOfDelete; i++)) 
+		    for ((i=0; i < NumOfDelete; i++))
 			do
 				pk="${pkarray[$i]}"
 
-				if ! cut -d: -f"$pkindex" "$DB_PATH/$tablename" | grep -qx "$pk"; then
+				if ! cut -d: -f"$pkindex" "$DB_PATH/$tablename.data" | grep -qx "$pk"; then
 				    echo "No match for primary key '$pk' in the table. Please try again."
 				    all_found=false
 				    break
@@ -79,10 +84,10 @@ do
 			    pk_value=${pkarray[$y]}
 			    
 			    # Get the line number where the primary key matches in the pk column
-			    lineno=$(awk -F: -v pk="$pk_value" -v col="$pkindex" '$col == pk { print NR; exit }' "$DB_PATH/$tablename")
+			    lineno=$(awk -F: -v pk="$pk_value" -v col="$pkindex" '$col == pk { print NR; exit }' "$DB_PATH/$tablename.data")
 			    
 			    if [[ -n "$lineno" ]]; then
-				sed -i "${lineno}d" "$DB_PATH/$tablename"
+				sed -i "${lineno}d" "$DB_PATH/$tablename.data"
 				echo "Deleted row with primary key $pk_value (line $lineno)"
 				echo "Here's the new table content: "
 				DISPLAY_TABLE

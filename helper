@@ -94,7 +94,7 @@ validateColumnExist(){
 }
 DISPLAY_TABLE(){
 				meta_file="$DB_PATH/.${tablename}.meta"
-                                data_file="$DB_PATH/${tablename}"
+                                data_file="$DB_PATH/${tablename}.data"
 
                                 # Extract headers from meta file
                                 headers=$(awk -F: '{printf "%s\t", $1} END {print ""}' "$meta_file")
