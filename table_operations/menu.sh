@@ -10,16 +10,20 @@ then
     . $FILE_DIR/../main.sh
 fi
 echo "---------------------------------------------"
-select option in "Create Table" "List Tables" "Drop Table" "Insert into Table" "Select From Table" "Delete From Table" "Update Table" "Exit"
+select option in "Create Table" "List Tables" "Drop Table" "Insert into Table" "Select From Table" "Delete From Table" "Update From Table" "Exit"
 do
 case $option in
     "Create Table")
         echo "Creating a new table in database $DB_NAME..."
         . "$FILE_DIR/create_table" 
         ;;
-    "Insert into Table" )
+    "Insert into Table")
         echo "Inserting into a table in database $DB_NAME..."
         . "$FILE_DIR/insert_into_table"
+        ;;
+    "Update From Table")
+        echo "Updating a table in database $DB_NAME..."
+        . "$FILE_DIR/update_from_table"
         ;;
     Exit)
         echo "Exiting..."
