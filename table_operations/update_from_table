@@ -15,6 +15,9 @@
 #update users set name="Ahmed" where id=3
 #echo "---------------------------------------------"
 #echo "Here is the list of tables in database $DB_NAME, choose one to update from or type 'exit' to quit:"
+# if the condition fulfilled with more than one col and the updated filed is pk then it will update it and it won't be unique any more eck
+#in the condition filed if the pk is exist for the updated col then check if the condition exist more than one if true then echo error 
+# ask the user if he want to update one only or to re enter the condition
 while true
 do
     echo "---------------------------------------------"
@@ -112,6 +115,7 @@ do
                 break
             fi
         fi
+        break
     done
 
     # now we ask for the condition to update the row
@@ -127,8 +131,8 @@ do
         condition_column=$(echo "$CONDITION" | cut -d= -f1)
         condition_value=$(echo "$CONDITION" | cut -d= -f2)
         # check if condition column exists
-        cut -d: -f1 "$meta_file" | grep -qw "$condition_column"
-        if [[ $? -ne 0 ]]
+        
+        if ! cut -d: -f1 "$meta_file" | grep -qw "$condition_column"
         then
             echo "Condition column '$condition_column' does not exist."
             continue
@@ -146,12 +150,28 @@ do
 
     awk -F: -v OFS=: -v cond_col="$condition_index" -v cond_val="$condition_value" \
         -v upd_col="$update_index" -v new_val="$NEW_VALUE" '
+    BEGIN{
+        count = 0
+    }
     {
         if ($cond_col == cond_val) {
             $upd_col = new_val
+            count++
         }
         print
-    }' "$data_file" > temp && mv temp "$data_file"
+    }
+    END {
+    print count
+    }    
+    ' "$data_file" > temp 
+    occurrence=$(tail -n1 temp)
+    if ((occurrence > 1 )) && [[ $col_pk == "pk" ]]
+    then
+        echo "The condition column occur more than one and the updated column is unique can't complete update"
+        continue
+    fi
+    sed -i '$d' temp
+    mv temp "$data_file"
     echo "Updated $TABLE_NAME successfully!"
     break
 done
