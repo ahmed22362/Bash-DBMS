@@ -16,19 +16,38 @@ case $option in
     "Create Table")
         echo "Creating a new table in database $DB_NAME..."
         . "$FILE_DIR/create_table" 
+	listTableMenu
         ;;
     "Insert into Table")
         echo "Inserting into a table in database $DB_NAME..."
         . "$FILE_DIR/insert_into_table"
-        ;;
+        listTableMenu
+	;;
     "Update From Table")
         echo "Updating a table in database $DB_NAME..."
         . "$FILE_DIR/update_from_table"
-        ;;
+        listTableMenu
+	;;
     "Select From Table")
         echo "Select from table in database $DB_NAME..."
         . "$FILE_DIR/select_table"
-        ;;
+        listTableMenu
+	;;
+    "List Tables")
+	    echo "Listing available tables within the database $DB_NAME..."
+	    . "$FILE_DIR/list_table"
+	    listTableMenu
+	    ;;
+    "Drop Table")
+	    echo "Deleting tables from the database $DB_NAME..."
+	    . "$FILE_DIR/drop_table"
+	    listTableMenu
+	    ;;
+    "Delet From Table")
+	    echo "Deleting table content in the database $DB_NAME..."
+	    . "$FILE_DIR/delete_from_table"
+	    listTableMenu
+	    ;;
     Exit)
         echo "Exiting..."
         break
