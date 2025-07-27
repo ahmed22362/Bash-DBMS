@@ -2,18 +2,24 @@
 shopt -s extglob
 FILE_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
 
-. $FILE_DIR/../helper
-DB_PATH=~/dbs/$1
+DB_PATH=~/dbs/$1 # use dynamic variable for the db directory
 while true
 do
 
 	
-	ls $DB_PATH
+	echo "Here is the list of tables in database $DB_NAME, choose one to insert into or type 'exit' to quit:"
+    for file in "$DB_DIR/$DB_NAME"/*.data
+    do
+    [[ -e "$file" ]] || continue
+    echo "$(basename "${file%.data}")"
+    done
+
 	read -p $'\n Select a table from the above : \n' tablename
-	if [[ -f $DB_PATH/$tablename ]]
+	echo $DB_PATH/$tablename
+	if [[ -f $DB_PATH/"$tablename.data" ]]
 	then
 		echo -e "Here are the available fileds/columns :\n`cat $DB_PATH/.$tablename.meta` "
-		declare -i NumOfFields=$(wc -l < $DB_PATH/$tablename)
+		declare -i NumOfFields=$(wc -l < $DB_PATH/"$tablename.data" )
 		read -p $'Do you want to navigate by \n[1]primary key \n[2]A specific field \n[3]Display entire table \n' option
 		case $option in
 			1)
@@ -21,7 +27,7 @@ do
 				pkindex=$(awk -F: '$NF == "pk" { print NR; exit }' $DB_PATH/.$tablename.meta)
 				echo primary key is "$pk" at column number "$pkindex"
 				read -p "please enter the desired primarykey to display entire row: " rowpk	
-			        awk -F: -v idx="$pkindex" -v val="$rowpk" '$(idx) == val' $DB_PATH/$tablename	
+			        awk -F: -v idx="$pkindex" -v val="$rowpk" '$(idx) == val' $DB_PATH/"$tablename.data" 	
 	
 				break
 				;;
@@ -38,7 +44,7 @@ do
 				then 
 					echo "you have exceeded the current number of columns for this table...please try again"
 				else
-					cut -d: -f$field $DB_PATH/$tablename
+					cut -d: -f$field $DB_PATH/$"$tablename.data" 
 				fi
 				
 				break
