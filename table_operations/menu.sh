@@ -43,7 +43,7 @@ case $option in
 	    . "$FILE_DIR/drop_table"
 	    listTableMenu
 	    ;;
-    "Delet From Table")
+    "Delete From Table")
 	    echo "Deleting table content in the database $DB_NAME..."
 	    . "$FILE_DIR/delete_from_table"
 	    listTableMenu
