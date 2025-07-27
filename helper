@@ -10,6 +10,19 @@
     echo "5. Exit"
     echo -n "Enter your choice: "
 }
+listTableMenu() {
+    echo "Table Operations Menu:"
+    echo "Select a table operation by number:"
+    echo "1. Create Table"
+    echo "2. List Tables"
+    echo "3. Drop Table"
+    echo "4. Insert into Table"
+    echo "5. Select From Table"
+    echo "6. Delete From Table"
+    echo "7. Update From Table"
+    echo "8. Exit"
+    echo -n "Enter your choice: "
+}
  validateTableName() {
     table_name=$1
     if [[ -z $table_name ]] 
