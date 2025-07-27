@@ -108,6 +108,8 @@ do
             then
                 echo "Value '$NEW_VALUE' already exists in column '$COLUMN_NAME'. Please enter a unique value."
                 continue
+            else
+                break
             fi
         fi
     done
@@ -115,7 +117,7 @@ do
     # now we ask for the condition to update the row
     # name=abdo
     while true
-    then
+    do
         read -p "Enter the condition to update the row (e.g., id=1): " CONDITION
         if [[ ! "$CONDITION" =~ ^[a-zA-Z_]+=[^=]+$ ]]
         then
@@ -130,7 +132,7 @@ do
         then
             echo "Condition column '$condition_column' does not exist."
             continue
-        elif
+        else
             break
         fi
     done
