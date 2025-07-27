@@ -25,6 +25,10 @@ case $option in
         echo "Updating a table in database $DB_NAME..."
         . "$FILE_DIR/update_from_table"
         ;;
+    "Select From Table")
+        echo "Select from table in database $DB_NAME..."
+        . "$FILE_DIR/select_table"
+        ;;
     Exit)
         echo "Exiting..."
         break
