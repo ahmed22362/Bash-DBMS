@@ -34,20 +34,49 @@ do
 				break
 				;;
 			2)
-				declare -i field=0
-				read -p $'Which column number you want to investigate? :  ' field
-				
-				if (( $field > $NumOfFields ))
-				then 
-					echo "The entered number is greater number of columns for this table...please try again"
-				else
-					
-					awk -F: -v FIELD="$field" 'NR == FIELD {print $1} ' "$DB_PATH/.$tablename.meta"
-					echo "+-------------------------------+"
-					cut -d: -f$field $DB_PATH/$"$tablename.data" | sed 's/{colon}/:/g'
-					echo "+-------------------------------+"
-				fi
-				
+				# Prompt user for any number of column numbers
+				read -p $'Enter column numbers you want to investigate (separated by spaces): ' -a fields
+
+				# Validate input fields
+				for f in "${fields[@]}"; do
+				    if ! [[ "$f" =~ ^[0-9]+$ ]]; then
+				        echo "Invalid input: $f is not a number, please try again..."
+				        break
+				    fi
+				    if (( f < 1 || f > NumOfFields )); then
+				        echo "Column number $f is out of range (1 to $NumOfFields), please try again..."
+				        break
+				    fi
+				done
+
+				# Print headers from .meta file
+				awk -F: -v cols="${fields[*]}" '
+				BEGIN {
+				    split(cols, arr, " ")
+				}
+				{
+				    for (i in arr) {
+				        if (NR == arr[i]) {
+				            headers = headers $1 " | "
+				        }
+				    }
+				}
+				END {
+				    sub(/ \| $/, "", headers)
+				    print headers
+				}
+				' "$DB_PATH/.$tablename.meta"
+
+				echo "+--------------------------------+"
+
+				# Prepare comma-separated list for cut
+				cut_fields=$(IFS=,; echo "${fields[*]}")
+
+				# Print selected columns from the .data file
+				cut -d: -f"$cut_fields" "$DB_PATH/$tablename.data"
+
+				echo "+--------------------------------+"
+
 			
 				
 				break
