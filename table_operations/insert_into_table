@@ -5,11 +5,6 @@ do
 
     echo "---------------------------------------------"
     echo "Here is the list of tables in database $DB_NAME, choose one to insert into or type 'exit' to quit:"
-    if [[ $table_name =~ ^[eE][xX][iI][tT]$ ]]
-    then
-        echo "Ending session..."
-        break
-    fi
 
     for file in "$DB_DIR/$DB_NAME"/*.data
     do
@@ -17,7 +12,16 @@ do
     echo "$(basename "${file%.data}")"
     done
 
-    read -p "Please enter the name of the table you want to insert into: " TABLE_NAME 
+    read -p 'Please enter the name of the table you want to insert into: ' TABLE_NAME 
+
+    if [[ $TABLE_NAME =~ ^[eE][xX][iI][tT]$ ]]
+    then    
+        echo "Ending session..."
+        break
+    fi
+
+
+
     checkTableExists "$TABLE_NAME"
     if [[ $? -ne 1 ]]
     then

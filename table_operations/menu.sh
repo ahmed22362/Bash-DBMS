@@ -54,6 +54,7 @@ case $option in
         ;;
     *)
         echo "Enter a valid option"
+        listTableMenu
         ;;
 esac
 done

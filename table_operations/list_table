@@ -1,4 +1,6 @@
 #!/bin/bash
 
-DB_PATH=~/dbs/$1
-ls ~/dbs/"$1"
+for file in "$DB_DIR/$DB_NAME"/*.data
+do
+    echo "$(basename "${file%.data}")"
+done

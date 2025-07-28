@@ -9,6 +9,11 @@ do
 			echo "Ending session..."
 			break
 	fi
+	if [[ -z $DBname ]]
+	then
+        echo "Name cannot be empty. Please enter a valid name."
+        continue
+	fi
 	if [[ -d $DB_DIR/"$DBname" ]]
 	then
 			echo "A DB with this name already exists"

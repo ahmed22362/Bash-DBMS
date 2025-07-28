@@ -21,7 +21,7 @@ listTableMenu() {
     echo "6. Delete From Table"
     echo "7. Update From Table"
     echo "8. Exit"
-    echo -n "Enter your choice: "
+    echo -n "Enter your choice "
 }
  validateTableName() {
     table_name=$1

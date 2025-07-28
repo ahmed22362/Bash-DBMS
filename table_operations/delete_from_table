@@ -15,10 +15,7 @@ do
 	echo "$(basename "${file%.data}")"
 	done	
 	read -p $'Chose a table from the above: ' tablename
-	if ! [[ -s $DB_PATH/"$tablename.data" ]] ; then
-		echo "this table is empty and has no entries to delete, go back to main menu and creat or insert in table"
-		break
-	fi
+
 	if [[ -z "$tablename" ]] ; then echo "No table selected...please try again"
 		continue 
 	fi
@@ -34,6 +31,10 @@ do
 				;;
 		esac
 	else
+		if ! [[ -s $DB_PATH/"$tablename.data" ]] ; then
+		echo "this table is empty and has no entries to delete, go back to main menu and create or insert in table"
+		break
+		fi
 		pk=$(awk -F: '$NF == "pk" {print $1}' $DB_PATH/.$tablename.meta)
 		pktype=$(awk -F: '$NF == "pk" {print $2}' $DB_PATH/.$tablename.meta)
 		pkindex=$(awk -F: '$NF == "pk" {print NR}' $DB_PATH/.$tablename.meta)

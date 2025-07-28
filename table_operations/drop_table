@@ -4,17 +4,27 @@ trap "echo -e '\nSeems like you tried to force cancel. Returning to main menu.';
 DB_PATH=$1
 while true
 do
-	read -p "Enter the name of the table you want to delete: " tablename
-	
-	if [[ -f $DB_PATH/"$tablename" ]]
+    echo "Here is the list of tables in database $DB_NAME, choose one to delete or type 'exit' to quit:"
+	for file in "$DB_DIR/$DB_NAME"/*.data
+	do
+		echo "$(basename "${file%.data}")"
+	done
+	read -p "Enter the name of the table you want to delete or type 'exit' to quit: " tablename
+	if [[ $tablename =~ ^[eE][xX][iI][tT]$ ]]
+    then
+        echo "Ending session..."
+        break
+    fi
+	if [[ -f $DB_DIR/$DB_NAME/"$tablename.data" ]]
 	then
 
 			read -p "Are you sure you want to delete this table? [Yes][No]: " decision
 			if [[ "$decision" =~ ^[Yy][eE][sS]$ ]]
 			then
-				rm -f $DB_PATH/"$tablename"
+				rm -f $DB_DIR/$DB_NAME/"$tablename.data"
+				rm -f $DB_DIR/$DB_NAME/"$tablename.meta"
 				echo "table '$tablename' deleted successfully...here is the new list of tables: "
-				ls  $DB_PATH
+				ls  $DB_DIR/$DB_NAME
 				break
 			fi
 			if [[ "$decision" =~ ^[nN][oO]$ ]]
@@ -42,7 +52,7 @@ do
 			fi
 		else
 		echo "No table found with this name, Here's a list of the existing tables: "
-		ls  $DB_PATH/"$tablename"
+		ls  $DB_DIR/$DB_NAME
 		continue
 
 	fi

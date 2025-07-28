@@ -63,7 +63,9 @@ do
 		esac
 
 	else
-	read -p 'No table matching, would you like to try again or exit? : \n[1] Try again \n[any button] Exit ' option
+	read -p 'No table matching, would you like to try again or exit? : 
+	[1] Try again 
+	[any button] Exit ' option
 	case $option in
 		1)
 		continue
