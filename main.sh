@@ -27,7 +27,7 @@ case $option in
         . "$MAIN_DIR/db_operations/drop_database" $MAIN_DIR
         listMainMenu
         ;;  
-    Exit)
+    "Exit")
         echo "Exiting..."
         break
         ;;
