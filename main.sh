@@ -2,6 +2,10 @@
 
 PS3="Select a database operation by number: "
 MAIN_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
+if ! [[ -d "$HOME/dbs" ]] ; then
+	mkdir "$HOME/dbs"
+	echo "We created you the databases directory "dbs" located in your home directory"
+fi
 DB_DIR="$(echo ~/dbs)"
 . "$MAIN_DIR/helper"
 select option in "Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit"
