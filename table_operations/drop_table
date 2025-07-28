@@ -29,9 +29,9 @@ do
 			fi
 			if [[ "$decision" =~ ^[nN][oO]$ ]]
 			then
-				read -p $'\nNo table was deleted.\nWould you like to:\n\
-				[1] Try again\n\
-				[2] Exit to main menu (not implemented)\n\
+				read -p $'No table was deleted.\nWould you like to:
+				[1] Try again
+				[2] Exit to main menu (not implemented)
 				Enter option: ' option	
 				case $option in
 					"1")

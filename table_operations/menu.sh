@@ -16,7 +16,7 @@ case $option in
     "Create Table")
         echo "Creating a new table in database $DB_NAME..."
         . "$FILE_DIR/create_table" 
-	listTableMenu
+	    listTableMenu
         ;;
     "Insert into Table")
         echo "Inserting into a table in database $DB_NAME..."
