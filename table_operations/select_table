@@ -73,7 +73,7 @@ do
 				cut_fields=$(IFS=,; echo "${fields[*]}")
 
 				# Print selected columns from the .data file
-				cut -d: -f"$cut_fields" "$DB_PATH/$tablename.data"
+				cut -d: -f"$cut_fields" "$DB_PATH/$tablename.data" | sed 's/{colon}/:/g'
 
 				echo "+--------------------------------+"
 
