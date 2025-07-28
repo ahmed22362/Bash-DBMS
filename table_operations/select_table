@@ -28,7 +28,7 @@ do
 				echo primary key is "$pk" at column number "$pkindex"
 				read -p "please enter the desired primarykey to display entire row: " rowpk	
 			        echo "+---------------------------------+"
-				awk -F: -v idx="$pkindex" -v val="$rowpk" '$(idx) == val' $DB_PATH/"$tablename.data"
+				awk -F: -v idx="$pkindex" -v val="$rowpk" '$(idx) == val' $DB_PATH/"$tablename.data" | sed 's/{colon}/:/g'
 				echo "+---------------------------------+"
 	
 				break
@@ -44,7 +44,7 @@ do
 					
 					awk -F: -v FIELD="$field" 'NR == FIELD {print $1} ' "$DB_PATH/.$tablename.meta"
 					echo "+-------------------------------+"
-					cut -d: -f$field $DB_PATH/$"$tablename.data"
+					cut -d: -f$field $DB_PATH/$"$tablename.data" | sed 's/{colon}/:/g'
 					echo "+-------------------------------+"
 				fi
 				
@@ -53,7 +53,7 @@ do
 				break
 				;;
 			3)
-				DISPLAY_TABLE
+				DISPLAY_TABLE | sed 's/{colon}/:/g'
 				break
 				;;
 			*)
